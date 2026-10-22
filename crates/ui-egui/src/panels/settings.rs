@@ -895,6 +895,9 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
                 let page = egui::ScrollArea::vertical().id_salt(("settings-page", cat.id)).auto_shrink([false, false]).max_height(BODY_H).show(ui, |ui| {
                     ui.spacing_mut().item_spacing.y = 6.0;
                     rows(app, ui, &mut d, cat.rows);
+                    if cat.id == "plugins" {
+                        crate::panels::extensions::settings_page(app, ui);
+                    }
                     if !d.message.is_empty() {
                         ui.add_space(6.0);
                         note(ui, &t, &d.message);

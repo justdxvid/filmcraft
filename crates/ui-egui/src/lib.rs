@@ -305,6 +305,8 @@ pub struct FilmcraftApp {
     /// [`MAX_THUMB_TEXTURES`] are freed, least recently used first (#1682).
     thumb_used: HashMap<String, u64>,
     control_rx: Option<Receiver<ControlRequest>>,
+    pub control_port: Option<u16>,
+    pub extensions: panels::extensions::ExtensionsState,
     /// One explicit panel reveal; consumed by the custom renderer, never repeated per frame.
     pub(crate) pending_panel_raise: Option<PanelKind>,
     /// Explicit automation mode: native widget input and native menu commands are excluded.
@@ -552,6 +554,8 @@ impl FilmcraftApp {
         let workspaces =
             session.prefs_path.as_ref().and_then(|p| p.parent()).map(|d| dock::WorkspacePrefs::load(&d.join(dock::WORKSPACES_FILE))).unwrap_or_default();
         let language = i18n::Language::parse(&session.prefs.general.interface_language).unwrap_or_default();
+        let mut extensions = panels::extensions::ExtensionsState::default();
+        extensions.ensure_loaded();
         Self {
             session,
             ui: UiState { language, ..UiState::default() },
@@ -570,6 +574,8 @@ impl FilmcraftApp {
             textures: HashMap::new(),
             thumb_used: HashMap::new(),
             control_rx: None,
+            control_port: None,
+            extensions,
             pending_panel_raise: None,
             control_input_only: false,
             native_window_focused: None,
@@ -1670,6 +1676,7 @@ impl FilmcraftApp {
     }
 
     fn drain_control(&mut self, ctx: &egui::Context) {
+        panels::extensions::poll(self);
         let Some(rx) = self.control_rx.take() else { return };
         let now = ctx.input(|i| i.time);
         let mut reqs: Vec<(ControlRequest, f64)> = std::mem::take(&mut self.deferred);

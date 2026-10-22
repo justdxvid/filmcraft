@@ -10,6 +10,7 @@ pub mod effects;
 pub mod essential_sound;
 pub mod events;
 pub mod export_mode;
+pub mod extensions;
 pub mod file_dialogs;
 pub mod frame_export;
 pub mod graphics;
@@ -105,6 +106,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, p: PanelKind, rect: Rect)
         PanelKind::EssentialSound => essential_sound::show(app, ui, rect),
         PanelKind::TextToSpeech => tts::show(app, ui, rect),
         PanelKind::ProjectNotes => notes::show(app, ui, rect),
+        PanelKind::Extensions => extensions::show(app, ui, rect),
         other => crate::dock::placeholder(ui, rect, &app.tokens, &tlf!("{panel} — coming in a later milestone", panel = crate::i18n::t(other.title()))),
     }
 }

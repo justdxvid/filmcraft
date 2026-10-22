@@ -341,6 +341,9 @@ fn app_creator(launch: Launch, graphics: graphics::GraphicsStart, created: Arc<A
         if let Some(port) = control_port {
             let rx = control_server::start(port, cc.egui_ctx.clone());
             app = if control_input_only { app.with_control_input_only(rx) } else { app.with_control(rx) };
+            app.control_port = Some(port);
+        } else if !app.extensions.plugins.is_empty() {
+            let _ = filmcraft_ui_egui::panels::extensions::ensure_bridge(&mut app, &cc.egui_ctx);
         }
         Ok(Box::new(app))
     })
